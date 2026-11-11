@@ -1,0 +1,37 @@
+{
+  "name": "@local/dsh-kourichat",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "description": "KouriChat relay provider with native DeepSeek-style reasoning levels in the DSH model menu",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./assets/*": "./assets/*",
+    "./package.json": "./package.json",
+    "./icon": "./icon.png"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "assets/*",
+    "patches/*",
+    "icon.png",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-api-remotes",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
+    }
+  }
+}
