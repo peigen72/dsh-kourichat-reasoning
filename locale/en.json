@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "KouriChat reasoning",
+    "description": "Adds KouriChat to the Models page with native DeepSeek-style reasoning levels for GPT and Claude. Uses the ordinary /v1 endpoint by default, with optional OpenAI Responses."
+  }
+}

@@ -1,0 +1,49 @@
+﻿diff --git a/lib/client.js b/lib/client.js
+index 34c6478..4647617 100644
+--- a/lib/client.js
++++ b/lib/client.js
+@@ -88,7 +88,7 @@ window.__ModuleLoader__.load({
+    * 按 efforts 的**引用**缓存结果数组：同一份目录快照永远拿到同一个数组，
+    * 免得每次渲染都新建（下游 effect 依赖它时会看见"新数组"）。
+    */
+-  var levelCache = { source: undefined, sourceLength: -1, levels: null };
++  var levelCache = { source: undefined, sourceLength: -1, hideAdded: false, modelId: "", levels: null };
+   var ULTRA_LEVEL = {
+     id: "ultra",
+     // ★ 必须带 `name` / `description`：effortName 优先用 `effort.name`，
+@@ -104,11 +104,21 @@ window.__ModuleLoader__.load({
+     description: "MAX effort, maximum rigor.",
+     ultra: true,
+   };
+-  function levelsOf(efforts) {
++  function levelsOf(efforts, modelId) {
+     if (!Array.isArray(efforts) || efforts.length === 0) return [];
+-    if (levelCache.source === efforts && levelCache.sourceLength === efforts.length) return levelCache.levels;
+-    var levels = efforts.concat([ULTRA_LEVEL]);
+-    levelCache = { source: efforts, sourceLength: efforts.length, levels: levels };
++    // KouriChat compatibility (patched by @local/dsh-kourichat):
++    // never append the synthetic Ultra when the native model ladder already
++    // has an "Ultra" effort, or when the model is GPT/Claude. The native
++    // reasoning ladder owns the top level for those models, so appending a
++    // second Ultra only creates a duplicate/empty stop. See the KouriChat
++    // plugin README for the upstream repository and re-apply instructions.
++    var hideAdded = /^(gpt|claude)/iu.test(String(modelId || "")) || efforts.some(function (item) {
++      return item && typeof item.name === "string" && item.name.trim().toLowerCase() === "ultra";
++    });
++    var cacheModelId = String(modelId || "");
++    if (levelCache.source === efforts && levelCache.sourceLength === efforts.length && levelCache.hideAdded === hideAdded && levelCache.modelId === cacheModelId) return levelCache.levels;
++    var levels = hideAdded ? efforts.slice() : efforts.concat([ULTRA_LEVEL]);
++    levelCache = { source: efforts, sourceLength: efforts.length, hideAdded: hideAdded, modelId: cacheModelId, levels: levels };
+     return levels;
+   }
+ 
+@@ -1191,7 +1201,7 @@ window.__ModuleLoader__.load({
+      *   · levelCount   = 展示档位数（刻度 / aria-valuemax / 索引 / pct 全部用它）
+      *   · realEffortCount - 1 = **顶格索引**（MAX）：MAX 与它右边的 ULTRA 都算顶格
+      */
+-    var levels = levelsOf(efforts);
++    var levels = levelsOf(efforts, effort && effort.selection ? effort.selection.model : "");
+     var levelCount = levels.length;
+     var realEffortCount = count;
+     /** 本组件所属会话（宿主 inject 时传入）：turbo 路由靠它精确定位，子代理/其它会话不受影响。 */
+

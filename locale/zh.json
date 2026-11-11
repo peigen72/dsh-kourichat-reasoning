@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "KouriChat 推理等级",
+    "description": "在模型页一键接入 KouriChat 中转站，为 GPT / Claude 提供与原生 DeepSeek 一致的推理等级选择；默认使用 /v1 普通端点，可切换 OpenAI Responses。"
+  }
+}
